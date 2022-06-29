@@ -11,11 +11,11 @@
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "npm run build && npm run format && npm run lint && npm run package"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/CVS-Health-POC/org-actions-action.git"
   },
   "keywords": [
     "actions",
@@ -26,17 +26,17 @@
   "dependencies": {
     "@actions/core": "^1.9.0",
     "js-yaml": "^4.1.0",
-    "octokit": "^1.8.0"
+    "octokit": "^1.8.1"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.5",
     "@types/node": "^16",
-    "@typescript-eslint/parser": "^5.28.0",
+    "@typescript-eslint/parser": "^5.30.0",
     "@vercel/ncc": "^0.34.0",
-    "eslint": "^8.17.0",
+    "eslint": "^8.18.0",
     "eslint-plugin-github": "^4.3.6",
     "eslint-plugin-jest": "^26.5.3",
-    "jest": "^28.1.1",
+    "jest": "^28.1.2",
     "prettier": "2.7.1",
     "ts-jest": "^28.0.5",
     "typescript": "^4.7.4"
