@@ -45,18 +45,21 @@ const organization_1 = __nccwpck_require__(6675);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const orgName = core.getInput('organization', { required: true });
+            const organization = core.getInput('organization', { required: true });
             const accessToken = core.getInput('access-token', { required: true });
             const octokit = new octokit_1.Octokit({ auth: accessToken });
-            const org = new organization_1.Organization(orgName);
+            const org = new organization_1.Organization(organization);
             const usedActions = yield org.usedActions(octokit);
             const usedWorkflows = yield org.usedWorkflows(octokit);
             const actionsMetadata = yield org.actionsMetadata(octokit);
             const workflowsMetadata = yield org.workflowsMetadata(octokit);
-            core.setOutput('used-actions', usedActions);
-            core.setOutput('used-workflows', usedWorkflows);
-            core.setOutput('actions-metadata', actionsMetadata);
-            core.setOutput('workflows-metadata', workflowsMetadata);
+            core.setOutput('results', {
+                organization,
+                usedActions,
+                usedWorkflows,
+                actionsMetadata,
+                workflowsMetadata,
+            });
         }
         catch (error) {
             if (error instanceof Error)
