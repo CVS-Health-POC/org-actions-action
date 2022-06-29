@@ -4,20 +4,23 @@ import { Organization } from './organization';
 
 async function run(): Promise<void> {
   try {
-    const orgName = core.getInput('organization', { required: true });
+    const organization = core.getInput('organization', { required: true });
     const accessToken = core.getInput('access-token', { required: true });
     const octokit = new Octokit({ auth: accessToken });
 
-    const org = new Organization(orgName);
+    const org = new Organization(organization);
     const usedActions = await org.usedActions(octokit);
     const usedWorkflows = await org.usedWorkflows(octokit);
     const actionsMetadata = await org.actionsMetadata(octokit);
     const workflowsMetadata = await org.workflowsMetadata(octokit);
 
-    core.setOutput('used-actions', usedActions);
-    core.setOutput('used-workflows', usedWorkflows);
-    core.setOutput('actions-metadata', actionsMetadata);
-    core.setOutput('workflows-metadata', workflowsMetadata);
+    core.setOutput('results', {
+      organization,
+      usedActions,
+      usedWorkflows,
+      actionsMetadata,
+      workflowsMetadata,
+    });
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }
