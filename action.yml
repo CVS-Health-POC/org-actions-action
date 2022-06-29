@@ -1,11 +1,13 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Get Actions and Workflows in an Organization'
+description: 'Outputs metadata and usage for Actions and Workflows in an organization'
+author: 'DevSecOps'
 inputs:
-  milliseconds: # change this
+  organization:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'Organization to scan'
+  access-token:
+    required: true
+    description: 'Read-only access token for organization'
 runs:
   using: 'node16'
   main: 'dist/index.js'
