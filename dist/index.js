@@ -21853,10 +21853,10 @@ var pluginThrottling = __nccwpck_require__(9968);
 var app = __nccwpck_require__(4389);
 var oauthApp = __nccwpck_require__(3493);
 
-const VERSION = "1.8.0";
+const VERSION = "1.8.1";
 
 const Octokit = core.Octokit.plugin(pluginRestEndpointMethods.restEndpointMethods, pluginPaginateRest.paginateRest, pluginRetry.retry, pluginThrottling.throttling).defaults({
-  userAgent: `octokit-rest.js/${VERSION}`,
+  userAgent: `octokit.js/${VERSION}`,
   throttle: {
     onRateLimit,
     onAbuseLimit
