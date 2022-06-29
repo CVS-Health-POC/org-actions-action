@@ -1,19 +1,35 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import * as core from '@actions/core';
+import { Octokit } from 'octokit';
+import { Organization } from './organization';
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const orgName = core.getInput('organization', { required: true });
+    const accessToken = core.getInput('access-token', { required: true });
+    const octokit = new Octokit({ auth: accessToken });
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    try {
+      await octokit.rest.users.getAuthenticated();
+    } catch (error) {
+      core.setFailed(
+        `Could not authenticate with access token. Please check that it is correct and has read access to the organization: ${error}`,
+      );
+      return;
+    }
 
-    core.setOutput('time', new Date().toTimeString())
+    const org = new Organization(orgName);
+    const usedActions = await org.usedActions(octokit);
+    const usedWorkflows = await org.usedWorkflows(octokit);
+    const actionsMetadata = await org.actionsMetadata(octokit);
+    const workflowsMetadata = await org.workflowsMetadata(octokit);
+
+    core.setOutput('used-actions', usedActions);
+    core.setOutput('used-workflows', usedWorkflows);
+    core.setOutput('actions-metadata', actionsMetadata);
+    core.setOutput('workflows-metadata', workflowsMetadata);
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) core.setFailed(error.message);
   }
 }
 
-run()
+run();
