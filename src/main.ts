@@ -8,15 +8,6 @@ async function run(): Promise<void> {
     const accessToken = core.getInput('access-token', { required: true });
     const octokit = new Octokit({ auth: accessToken });
 
-    try {
-      await octokit.rest.users.getAuthenticated();
-    } catch (error) {
-      core.setFailed(
-        `Could not authenticate with access token. Please check that it is correct and has read access to the organization: ${error}`,
-      );
-      return;
-    }
-
     const org = new Organization(orgName);
     const usedActions = await org.usedActions(octokit);
     const usedWorkflows = await org.usedWorkflows(octokit);
