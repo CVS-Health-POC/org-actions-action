@@ -48,13 +48,6 @@ function run() {
             const orgName = core.getInput('organization', { required: true });
             const accessToken = core.getInput('access-token', { required: true });
             const octokit = new octokit_1.Octokit({ auth: accessToken });
-            try {
-                yield octokit.rest.users.getAuthenticated();
-            }
-            catch (error) {
-                core.setFailed(`Could not authenticate with access token. Please check that it is correct and has read access to the organization: ${error}`);
-                return;
-            }
             const org = new organization_1.Organization(orgName);
             const usedActions = yield org.usedActions(octokit);
             const usedWorkflows = yield org.usedWorkflows(octokit);
