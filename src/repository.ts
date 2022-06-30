@@ -28,10 +28,11 @@ export class Repository {
   #actionMetadataPromise?: Promise<ActionMetadata | undefined>;
   #workflowDataPromise?: Promise<RepositoryWorkflowData>;
 
-  constructor(public owner: string, public name: string) {
-    this.name = name;
-    this.owner = owner;
-  }
+  constructor(
+    public owner: string,
+    public name: string,
+    public visibility?: string,
+  ) {}
 
   async actionMetdata(octokit: Octokit): Promise<ActionMetadata | undefined> {
     return this.#getActionMetadataPromise(octokit);
@@ -61,7 +62,7 @@ export class Repository {
     data: RepositoryWorkflowData,
     file: RepositoryFile,
   ): void {
-    if (workflow.on.workflow_call) {
+    if (this.visibility !== 'private' && workflow.on.workflow_call) {
       this.#addWorkflowMetadata(
         workflow.on.workflow_call,
         data,
@@ -101,22 +102,25 @@ export class Repository {
   async #getActionMetadata(
     octokit: Octokit,
   ): Promise<ActionMetadata | undefined> {
-    let file = await this.#getRepositoryPathData(octokit, 'action.yml');
-    if (!file) {
-      file = await this.#getRepositoryPathData(octokit, 'action.yaml');
-    }
-
     let metadata: ActionMetadata | undefined;
-    if (file && !Array.isArray(file)) {
-      const metadataYaml = await this.#parseYaml<ActionMetadataYaml>(file);
-      if (metadataYaml) {
-        const path = `${this.owner}/${this.name}`.toLowerCase();
-        metadata = {
-          ...metadataYaml,
-          owner: this.owner,
-          path,
-          repository: this.name,
-        };
+
+    if (this.visibility !== 'private') {
+      let file = await this.#getRepositoryPathData(octokit, 'action.yml');
+      if (!file) {
+        file = await this.#getRepositoryPathData(octokit, 'action.yaml');
+      }
+
+      if (file && !Array.isArray(file)) {
+        const metadataYaml = await this.#parseYaml<ActionMetadataYaml>(file);
+        if (metadataYaml) {
+          const path = `${this.owner}/${this.name}`.toLowerCase();
+          metadata = {
+            ...metadataYaml,
+            owner: this.owner,
+            path,
+            repository: this.name,
+          };
+        }
       }
     }
 

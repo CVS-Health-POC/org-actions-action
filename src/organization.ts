@@ -52,7 +52,11 @@ export class Organization {
     core.info(`Found [${orgRepos.length}] repositories`);
 
     for (const orgRepo of orgRepos) {
-      const repo = new Repository(orgRepo.owner.login, orgRepo.name);
+      const repo = new Repository(
+        orgRepo.owner.login,
+        orgRepo.name,
+        orgRepo.visibility,
+      );
       repos.push(repo);
     }
 

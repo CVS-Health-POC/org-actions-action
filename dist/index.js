@@ -174,7 +174,7 @@ _Organization_repositoriesPromise = new WeakMap(), _Organization_repositoryDataP
         core.info(`Found [${this.name}] organization`);
         core.info(`Found [${orgRepos.length}] repositories`);
         for (const orgRepo of orgRepos) {
-            const repo = new repository_1.Repository(orgRepo.owner.login, orgRepo.name);
+            const repo = new repository_1.Repository(orgRepo.owner.login, orgRepo.name, orgRepo.visibility);
             repos.push(repo);
         }
         return repos;
@@ -276,14 +276,13 @@ const yaml = __importStar(__nccwpck_require__(1917));
 const url_1 = __nccwpck_require__(8615);
 const used_1 = __nccwpck_require__(2325);
 class Repository {
-    constructor(owner, name) {
+    constructor(owner, name, visibility) {
         this.owner = owner;
         this.name = name;
+        this.visibility = visibility;
         _Repository_instances.add(this);
         _Repository_actionMetadataPromise.set(this, void 0);
         _Repository_workflowDataPromise.set(this, void 0);
-        this.name = name;
-        this.owner = owner;
     }
     actionMetdata(octokit) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -316,7 +315,7 @@ class Repository {
 }
 exports.Repository = Repository;
 _Repository_actionMetadataPromise = new WeakMap(), _Repository_workflowDataPromise = new WeakMap(), _Repository_instances = new WeakSet(), _Repository_addDataInWorkflow = function _Repository_addDataInWorkflow(workflow, data, file) {
-    if (workflow.on.workflow_call) {
+    if (this.visibility !== 'private' && workflow.on.workflow_call) {
         __classPrivateFieldGet(this, _Repository_instances, "m", _Repository_addWorkflowMetadata).call(this, workflow.on.workflow_call, data, file.path, workflow.name);
     }
     for (const job of Object.values(workflow.jobs)) {
@@ -336,16 +335,18 @@ _Repository_actionMetadataPromise = new WeakMap(), _Repository_workflowDataPromi
     data.workflowsMetadata[path] = Object.assign(Object.assign({}, onWorkflowCall), { name, owner: this.owner, repository: this.name, path });
 }, _Repository_getActionMetadata = function _Repository_getActionMetadata(octokit) {
     return __awaiter(this, void 0, void 0, function* () {
-        let file = yield __classPrivateFieldGet(this, _Repository_instances, "m", _Repository_getRepositoryPathData).call(this, octokit, 'action.yml');
-        if (!file) {
-            file = yield __classPrivateFieldGet(this, _Repository_instances, "m", _Repository_getRepositoryPathData).call(this, octokit, 'action.yaml');
-        }
         let metadata;
-        if (file && !Array.isArray(file)) {
-            const metadataYaml = yield __classPrivateFieldGet(this, _Repository_instances, "m", _Repository_parseYaml).call(this, file);
-            if (metadataYaml) {
-                const path = `${this.owner}/${this.name}`.toLowerCase();
-                metadata = Object.assign(Object.assign({}, metadataYaml), { owner: this.owner, path, repository: this.name });
+        if (this.visibility !== 'private') {
+            let file = yield __classPrivateFieldGet(this, _Repository_instances, "m", _Repository_getRepositoryPathData).call(this, octokit, 'action.yml');
+            if (!file) {
+                file = yield __classPrivateFieldGet(this, _Repository_instances, "m", _Repository_getRepositoryPathData).call(this, octokit, 'action.yaml');
+            }
+            if (file && !Array.isArray(file)) {
+                const metadataYaml = yield __classPrivateFieldGet(this, _Repository_instances, "m", _Repository_parseYaml).call(this, file);
+                if (metadataYaml) {
+                    const path = `${this.owner}/${this.name}`.toLowerCase();
+                    metadata = Object.assign(Object.assign({}, metadataYaml), { owner: this.owner, path, repository: this.name });
+                }
             }
         }
         return metadata;
